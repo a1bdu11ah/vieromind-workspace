@@ -12,7 +12,7 @@ export default function Home() {
             <div className="internal-badge"><span/> VieroMind employee workspace</div>
             <h1>One team.<br/>Clearer progress.</h1>
             <p className="hero-text">A focused internal workspace for VieroMind employees to organize responsibilities, collaborate with their team, and keep meaningful work moving forward.</p>
-            <div className="hero-actions"><Link className="button employee-cta" href="/login">Open employee workspace <span>→</span></Link><Link className="text-link" href="/#platform">See how it works</Link></div>
+            <div className="hero-actions"><Link className="button employee-cta" href="/register">Create your workspace <span>→</span></Link><Link className="text-link" href="/login">Already have an account? Sign in</Link></div>
             <div className="trust-row"><span>Employees only</span><span>Role-based access</span><span>Private by design</span></div>
           </div>
 

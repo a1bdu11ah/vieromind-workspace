@@ -8,7 +8,7 @@ export default function Navbar() {
         <Link href="/" className="brand"><BrandLogo /></Link>
         <div className="nav-links">
           <Link href="/#platform">Platform</Link>
-          <span className="employee-nav-label">Internal team portal</span>
+          <Link href="/register">Create account</Link>
           <Link href="/login" className="button small">Employee sign in</Link>
         </div>
       </nav>

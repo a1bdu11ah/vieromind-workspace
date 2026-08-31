@@ -29,7 +29,9 @@ export default function AuthForm({ mode }) {
       <label>Password<input required minLength="6" name="password" type="password" autoComplete={isRegister ? "new-password" : "current-password"} value={form.password} onChange={update} placeholder="At least 6 characters" /></label>
       {error && <p className="error">{error}</p>}
       <button className="button full" disabled={loading}>{loading ? "Please wait..." : isRegister ? "Create workspace" : "Sign in to workspace"}</button>
-      {isRegister ? <p className="auth-switch">Already have an employee account? <Link href="/login">Sign in</Link></p> : <p className="auth-switch">Access is managed by your workspace owner.</p>}
+      {isRegister
+        ? <p className="auth-switch">Already have an account? <Link href="/login">Sign in</Link></p>
+        : <p className="auth-switch">New here? <Link href="/register">Create an account and workspace</Link></p>}
     </form>
   );
 }
