@@ -1,21 +1,18 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
 import { getCurrentUser } from "@/lib/auth";
-import User from "@/models/User";
-import Task from "@/models/Task";
+import { deleteTask, findTask, findUser, updateTask } from "@/lib/data";
 
 export async function PATCH(request, { params }) {
   try {
     const auth = await getCurrentUser();
     if (!auth) return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
-    await connectDB();
     const [actor, { id }, body] = await Promise.all([
-      User.findOne({ _id: auth.userId, tenantId: auth.tenantId }).select("role"), params, request.json()
+      findUser(auth.userId, auth.tenantId), params, request.json()
     ]);
-    const task = await Task.findOne({ _id: id, tenantId: auth.tenantId });
+    const task = await findTask(id, auth.tenantId);
     if (!actor || !task) return NextResponse.json({ message: "Task not found." }, { status: 404 });
     const isManager = ["owner", "admin"].includes(actor.role);
-    const isAssignee = task.assignedTo.toString() === auth.userId;
+    const isAssignee = task.assigned_to === auth.userId;
     if (!isManager && !isAssignee) return NextResponse.json({ message: "You cannot update this task." }, { status: 403 });
 
     const statuses = ["todo", "in-progress", "review", "completed"];
@@ -39,8 +36,8 @@ export async function PATCH(request, { params }) {
       if (!["low", "medium", "high"].includes(body.priority)) return NextResponse.json({ message: "Invalid priority." }, { status: 400 });
       task.priority = body.priority;
     }
-    await task.save();
-    return NextResponse.json({ task: { id: task._id.toString(), status: task.status, progress: task.progress, priority: task.priority } });
+    const updated = await updateTask(id, auth.tenantId, { status: task.status, progress: task.progress, priority: task.priority });
+    return NextResponse.json({ task: updated });
   } catch {
     return NextResponse.json({ message: "Could not update task." }, { status: 500 });
   }
@@ -50,11 +47,10 @@ export async function DELETE(_request, { params }) {
   try {
     const auth = await getCurrentUser();
     if (!auth) return NextResponse.json({ message: "Unauthorized." }, { status: 401 });
-    await connectDB();
-    const actor = await User.findOne({ _id: auth.userId, tenantId: auth.tenantId }).select("role");
+    const actor = await findUser(auth.userId, auth.tenantId);
     if (!actor || !["owner", "admin"].includes(actor.role)) return NextResponse.json({ message: "Only owners and admins can delete tasks." }, { status: 403 });
     const { id } = await params;
-    const deleted = await Task.findOneAndDelete({ _id: id, tenantId: auth.tenantId });
+    const deleted = await deleteTask(id, auth.tenantId);
     if (!deleted) return NextResponse.json({ message: "Task not found." }, { status: 404 });
     return NextResponse.json({ message: "Task deleted." });
   } catch {

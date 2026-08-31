@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
+import { pingDB } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET() {
   try {
-    const connection = await connectDB();
-    await connection.connection.db.admin().ping();
+    await pingDB();
     return NextResponse.json({
       status: "healthy",
       database: "connected",
@@ -18,7 +17,7 @@ export async function GET() {
     return NextResponse.json({
       status: "unhealthy",
       database: "disconnected",
-      message: process.env.MONGODB_URI ? "Atlas connection failed." : "MONGODB_URI is missing."
+      message: process.env.DATABASE_URL ? "PostgreSQL connection failed." : "DATABASE_URL is missing."
     }, { status: 503 });
   }
 }

@@ -1,11 +1,11 @@
 # Viero Workspace
 
-A simple multi-tenant starter built with Next.js and MongoDB. The visual direction is inspired by the clean, premium feel of Compass by VieroMind, while the codebase is intentionally small and easy to understand.
+A simple multi-tenant starter built with Next.js and Neon PostgreSQL. The visual direction is inspired by the clean, premium feel of Compass by VieroMind, while the codebase is intentionally small and easy to understand.
 
 ## Features
 
 - Next.js App Router
-- MongoDB + Mongoose
+- Neon serverless PostgreSQL
 - Registration creates a new tenant/workspace and owner account
 - Login/logout with HTTP-only JWT cookies
 - Password hashing with bcrypt
@@ -37,10 +37,8 @@ components/
   Navbar.js
 lib/
   auth.js
-  mongodb.js
-models/
-  Tenant.js
-  User.js
+  data.js
+  db.js
 ```
 
 ## Run locally
@@ -48,19 +46,21 @@ models/
 1. Install packages:
    `npm install`
 2. Copy `.env.example` to `.env.local`.
-3. Add your MongoDB Atlas connection string and JWT secret.
+3. Add your Neon `DATABASE_URL` and JWT secret.
 4. Run:
    `npm run dev`
 5. Open `http://localhost:3000`.
 
-## MongoDB Atlas
+## Neon PostgreSQL
 
-Create a free Atlas cluster, create a database user, allow your IP for local development, then copy the connection string into `MONGODB_URI`.
+The easiest deployment setup is **Vercel Dashboard → Project → Storage → Create Database → Neon**. Connect the database to Production, Preview, and Development. Vercel injects `DATABASE_URL` automatically; no IP allowlist is needed.
+
+The application creates its `tenants`, `users`, and `tasks` tables and indexes automatically on its first database request.
 
 Example:
 
 ```env
-MONGODB_URI=mongodb+srv://USERNAME:PASSWORD@cluster0.xxxxx.mongodb.net/viero_tenant_app?retryWrites=true&w=majority
+DATABASE_URL=postgresql://USER:PASSWORD@HOST/neondb?sslmode=require
 JWT_SECRET=your-very-long-random-secret
 ```
 
@@ -71,20 +71,18 @@ Do not commit `.env.local`.
 1. Push the project to GitHub.
 2. Import the repository in Vercel.
 3. Set the Vercel **Root Directory** to `viero-tenant-app` because the application is nested inside the repository folder.
-4. In Vercel > Project Settings > Environment Variables, add these to Production, Preview, and Development:
-   - `MONGODB_URI`
-   - `JWT_SECRET`
-5. In MongoDB Atlas > Network Access, allow the deployed environment. Vercel uses dynamic outbound addresses, so the basic Atlas setup uses `0.0.0.0/0` with a strong database user password.
-6. Deploy, then visit `/api/health`. A working deployment returns `{"status":"healthy","database":"connected"}`.
+4. In Vercel → Project → Storage, create and connect a Neon database. This injects `DATABASE_URL` into the selected environments.
+5. In Vercel → Project Settings → Environment Variables, add `JWT_SECRET` to Production, Preview, and Development.
+6. Redeploy, then visit `/api/health`. A working deployment returns `{"status":"healthy","database":"connected"}`.
 
 `.env.local` is only for local development and is intentionally excluded from deployments. Never commit it.
 
 ## Multi-tenant design
 
-Every user stores a `tenantId`. Data belonging to a workspace must also store the same `tenantId`. Every server-side query for tenant-owned data should include that tenant ID, for example:
+Every user stores a `tenant_id`. Data belonging to a workspace also stores the same `tenant_id`. Every server-side query for tenant-owned data includes that tenant ID, for example:
 
 ```js
-User.find({ tenantId: auth.tenantId })
+SELECT id, name, email FROM users WHERE tenant_id = $1
 ```
 
 Never accept a tenant ID from the browser as authorization. Read it from the verified session/JWT instead.
