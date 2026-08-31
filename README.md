@@ -70,12 +70,14 @@ Do not commit `.env.local`.
 
 1. Push the project to GitHub.
 2. Import the repository in Vercel.
-3. In Vercel > Project Settings > Environment Variables, add:
+3. Set the Vercel **Root Directory** to `viero-tenant-app` because the application is nested inside the repository folder.
+4. In Vercel > Project Settings > Environment Variables, add these to Production, Preview, and Development:
    - `MONGODB_URI`
    - `JWT_SECRET`
-4. Deploy.
+5. In MongoDB Atlas > Network Access, allow the deployed environment. Vercel uses dynamic outbound addresses, so the basic Atlas setup uses `0.0.0.0/0` with a strong database user password.
+6. Deploy, then visit `/api/health`. A working deployment returns `{"status":"healthy","database":"connected"}`.
 
-For MongoDB Atlas, make sure the cluster network access allows connections from your deployed environment. A common simple setup for a student/demo project is allowing `0.0.0.0/0` and relying on a strong database username/password; for production, use tighter controls when your hosting architecture permits it.
+`.env.local` is only for local development and is intentionally excluded from deployments. Never commit it.
 
 ## Multi-tenant design
 
