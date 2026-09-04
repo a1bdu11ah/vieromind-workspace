@@ -13,6 +13,9 @@ A simple multi-tenant starter built with Next.js and Neon PostgreSQL. The visual
 - Owner/admin task assignment with priorities and due dates
 - Member status and progress updates
 - Team-wide task board and completion tracking
+- Tenant-configurable incoming and outgoing webhooks
+- Signed external API calls for task lifecycle events
+- Encrypted integration secrets and webhook delivery history
 - Responsive landing page and dashboard
 - Vercel-ready structure
 
@@ -65,6 +68,38 @@ JWT_SECRET=your-very-long-random-secret
 ```
 
 Do not commit `.env.local`.
+
+## API and webhooks
+
+Owners and admins can configure integrations at `/dashboard/integrations`.
+
+Outgoing webhooks are sent for `task.created`, `task.updated`, and `task.deleted`. Each JSON request includes these headers:
+
+```text
+X-Viero-Event
+X-Viero-Delivery
+X-Viero-Timestamp
+X-Viero-Signature: sha256=<HMAC digest>
+```
+
+The signature is an HMAC-SHA256 digest of `<timestamp>.<raw JSON body>` using the workspace integration secret. Outgoing URLs must use HTTPS and cannot resolve to a private network address.
+
+External systems can create a task with `POST /api/webhooks/incoming/<workspace-slug>` and the header `Authorization: Bearer <integration-secret>`:
+
+```json
+{
+  "event": "task.create",
+  "data": {
+    "title": "Prepare monthly report",
+    "assigneeEmail": "member@example.com",
+    "priority": "high",
+    "description": "Optional details",
+    "dueDate": "2026-10-01"
+  }
+}
+```
+
+Integration secrets are encrypted in PostgreSQL using an AES-256-GCM key derived from `JWT_SECRET`. Changing `JWT_SECRET` invalidates existing integration secrets, so regenerate the workspace integration secret after rotating it.
 
 ## Deploy to Vercel
 

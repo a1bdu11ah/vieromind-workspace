@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { deleteTask, findTask, findUser, updateTask } from "@/lib/data";
+import { dispatchWebhook } from "@/lib/webhooks";
 
 export async function PATCH(request, { params }) {
   try {
@@ -37,6 +38,7 @@ export async function PATCH(request, { params }) {
       task.priority = body.priority;
     }
     const updated = await updateTask(id, auth.tenantId, { status: task.status, progress: task.progress, priority: task.priority });
+    await dispatchWebhook(auth.tenantId, "task.updated", { taskId: id, changes: updated }).catch(error => console.error("Webhook dispatch failed:", error));
     return NextResponse.json({ task: updated });
   } catch {
     return NextResponse.json({ message: "Could not update task." }, { status: 500 });
@@ -52,6 +54,7 @@ export async function DELETE(_request, { params }) {
     const { id } = await params;
     const deleted = await deleteTask(id, auth.tenantId);
     if (!deleted) return NextResponse.json({ message: "Task not found." }, { status: 404 });
+    await dispatchWebhook(auth.tenantId, "task.deleted", { taskId: id }).catch(error => console.error("Webhook dispatch failed:", error));
     return NextResponse.json({ message: "Task deleted." });
   } catch {
     return NextResponse.json({ message: "Could not delete task." }, { status: 500 });

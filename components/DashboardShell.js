@@ -6,6 +6,7 @@ const items = [
   { href: "/dashboard", label: "Overview", icon: "grid" },
   { href: "/dashboard/tasks", label: "Tasks", icon: "tasks" },
   { href: "/dashboard/members", label: "Team members", icon: "users" },
+  { href: "/dashboard/integrations", label: "API & webhooks", icon: "integrations" },
   { href: "/dashboard/settings", label: "Settings", icon: "settings" }
 ];
 
@@ -14,6 +15,7 @@ function Icon({ name }) {
     grid: <><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></>,
     tasks: <><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m8 9 1.5 1.5L12 8M14 9h3M8 15l1.5 1.5L12 14M14 15h3"/></>,
     users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></>,
+    integrations: <><path d="M8 12h8M12 8v8"/><path d="M5 7a3 3 0 0 1 3-3h1v4H8a1 1 0 0 0-1 1v1H3V9a5 5 0 0 1 2-4M19 17a3 3 0 0 1-3 3h-1v-4h1a1 1 0 0 0 1-1v-1h4v1a5 5 0 0 1-2 4"/></>,
     settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6h.08A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v.08A1.65 1.65 0 0 0 20.91 10H21a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z"/></>
   };
   return <svg viewBox="0 0 24 24" aria-hidden="true">{paths[name]}</svg>;

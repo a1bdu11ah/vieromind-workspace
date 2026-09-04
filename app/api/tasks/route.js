@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { createTask, findMember, findUser, listTasks } from "@/lib/data";
+import { dispatchWebhook } from "@/lib/webhooks";
 
 export async function GET() {
   try {
@@ -27,6 +28,7 @@ export async function POST(request) {
     const assignee = await findMember(assignedTo, auth.tenantId);
     if (!assignee) return NextResponse.json({ message: "Assignee is not part of this workspace." }, { status: 400 });
     const task = await createTask({ title: title.trim(), description: description.trim(), tenantId: auth.tenantId, assignedTo: assignee.id, createdBy: auth.userId, priority, dueDate: dueDate || null });
+    await dispatchWebhook(auth.tenantId, "task.created", { task }).catch(error => console.error("Webhook dispatch failed:", error));
     return NextResponse.json({ task }, { status: 201 });
   } catch (error) {
     console.error(error);
